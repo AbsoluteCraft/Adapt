@@ -1,0 +1,9 @@
+name: Adapt
+main: com.boveybrawlers.Adapt.Adapt
+version: 0.1
+softdepend: [AbsoluteCraft]
+commands:
+    adapt:
+        name: Adapt
+        description: The one and only command for Adapt
+        usage: /adapt
