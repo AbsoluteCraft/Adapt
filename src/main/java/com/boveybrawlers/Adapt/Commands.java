@@ -13,7 +13,7 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage(ChatColor.DARK_GRAY + "------------------------------");
 			sender.sendMessage(ChatColor.WHITE + "/adapt join");
 			sender.sendMessage(ChatColor.WHITE + "/adapt leave");
-			if(sender.hasPermission("adapt.send") || sender.isOp()) {
+			if(sender.hasPermission("adapt.start") || sender.isOp()) {
 				sender.sendMessage(ChatColor.WHITE + "/adapt start");
 			}
 			return true;
@@ -27,7 +27,7 @@ public class Commands implements CommandExecutor {
 							player.sendMessage(Adapt.plugin.prefix + "You are already in game");
 						} else if(Game.adapters.size() < 8 && Game.playing == false) { 
 							Game.addPlayer(player.getName());
-						} else if(Game.playing == true) {
+						} else if(Game.inArena == true || Game.playing == true) {
 							player.sendMessage(Adapt.plugin.prefix + ChatColor.RED + "There's already a game playing, try again in a minute");
 						} else {
 							player.sendMessage(Adapt.plugin.prefix + ChatColor.RED + "The current game is full");

@@ -27,6 +27,7 @@ import com.boveybrawlers.AbsoluteCraft.AbsoluteCraft;
 
 public class Game implements Listener {
 	public static boolean playing = false;
+	public static boolean inArena = false;
 	public static ArrayList<Adapter> adapters = new ArrayList<Adapter>();
 	
 	public static ArrayList<Integer> takenSpawns = new ArrayList<Integer>();
@@ -120,7 +121,9 @@ public class Game implements Listener {
 		
 		if(playing == true) {
 			Team dead = player.getScoreboard().getPlayerTeam(player);
-			dead.setPrefix(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "");
+			if(dead != null) {
+				dead.setPrefix(ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + "");
+			}
 		}
 		
 		player.setScoreboard(Adapt.plugin.manager.getNewScoreboard());
@@ -144,6 +147,23 @@ public class Game implements Listener {
 			if(countdown == true) {
 				countdownTask.cancel();
 			}
+			for(Adapter adapter : adapters) {
+				adapter.teleport(Adapt.plugin.lobby);
+				adapter.sendMessage(Adapt.plugin.prefix + ChatColor.RED + "Not enough players left to start a game");
+			}
+			
+			// Reset game
+			Adapt.plugin.board.clearSlot(DisplaySlot.SIDEBAR);
+			Adapt.plugin.board.clearSlot(DisplaySlot.PLAYER_LIST);
+			Adapt.plugin.manager = Bukkit.getScoreboardManager();
+			Adapt.plugin.board = Adapt.plugin.manager.getNewScoreboard();
+			
+			adapters.clear();
+			takenItems.clear();
+			takenSpawns.clear();
+			Adapt.plugin.spawnControl.getBlock().setType(Material.AIR);
+			playing = false;
+			inArena = false;
 		}
 		
 		if(playing == true && adapters.size() == 1) {
@@ -156,19 +176,21 @@ public class Game implements Listener {
 				
 				adapter.getPlayer().setScoreboard(Adapt.plugin.manager.getNewScoreboard());
 				
-				Adapt.plugin.board.clearSlot(DisplaySlot.SIDEBAR);
-				Adapt.plugin.board.clearSlot(DisplaySlot.PLAYER_LIST);
-				Adapt.plugin.board = Adapt.plugin.manager.getNewScoreboard();
-				Adapt.plugin.board.getObjective("adapt").unregister();
-				
-				AbsoluteCraft.tokens.add(adapter.getName(), 3);
+				AbsoluteCraft.tokens.add(adapter.getPlayer().getUniqueId(), adapter.getName(), 3);
 			}
 			
 			// Reset game
+			Adapt.plugin.board.clearSlot(DisplaySlot.SIDEBAR);
+			Adapt.plugin.board.clearSlot(DisplaySlot.PLAYER_LIST);
+			Adapt.plugin.manager = Bukkit.getScoreboardManager();
+			Adapt.plugin.board = Adapt.plugin.manager.getNewScoreboard();
+			
 			adapters.clear();
 			takenItems.clear();
+			takenSpawns.clear();
 			Adapt.plugin.spawnControl.getBlock().setType(Material.AIR);
 			playing = false;
+			inArena = false;
 		}
 	}
 	
@@ -179,6 +201,7 @@ public class Game implements Listener {
 	}
 
 	public static void countdown() {
+		inArena = true;
 		Adapt.plugin.spawnControl.getBlock().setType(Material.AIR);
 		
 		for(Adapter adapter : adapters) {
@@ -359,18 +382,20 @@ public class Game implements Listener {
 		            	kill = (Player) event.getDamager();
 		            }
 		            
-		            int killerIndex = getAdapterByName(kill.getName());
-	            	if(killerIndex != -1) {
-	            		Adapter killer = adapters.get(killerIndex);
-	            		
-	            		for(Adapter adapter : adapters) {
-	            			adapter.sendMessage(Adapt.plugin.prefix + ChatColor.DARK_AQUA + killer.getName() + " killed " + player.getName() + ChatColor.GREEN + " [+1]");
-	            		}
-	            		
-	            		killer.addKill();
-	            		AbsoluteCraft.tokens.add(killer.getName(), 1);
-	            		AbsoluteCraft.leaderboard.add(killer.getName(), "adapt", 1);
-	            	}
+		            if(kill != null) {
+			            int killerIndex = getAdapterByName(kill.getName());
+		            	if(killerIndex != -1) {
+		            		Adapter killer = adapters.get(killerIndex);
+		            		
+		            		for(Adapter adapter : adapters) {
+		            			adapter.sendMessage(Adapt.plugin.prefix + ChatColor.DARK_AQUA + killer.getName() + " killed " + player.getName() + ChatColor.GREEN + " [+1]");
+		            		}
+		            		
+		            		killer.addKill();
+		            		AbsoluteCraft.tokens.add(killer.getPlayer().getUniqueId(), killer.getName(), 1);
+		            		AbsoluteCraft.leaderboard.add(killer.getName(), "adapt", 1);
+		            	}
+		            }
 		            
 		            removePlayer(playerIndex, true);
 		        }
@@ -407,9 +432,9 @@ public class Game implements Listener {
         if(playing == true && (!player.isOp() || !player.hasPermission("adapt.admin"))) {
 	        int index = getAdapterByName(player.getName());
 	        if (index != -1) {
-	        	if(msg.matches("/adapt leave")) {
+	        	if(msg.contains("/adapt leave")) {
 	        		return;
-	        	} else if (msg.matches("/")){
+	        	} else if (msg.startsWith("/")){
 	                player.sendMessage(Adapt.plugin.prefix + ChatColor.RED + " You cannot use commands whilst playing!");
 	                event.setCancelled(true);
 	            }

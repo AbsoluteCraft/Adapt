@@ -12,7 +12,7 @@ import org.bukkit.scoreboard.Team;
 
 public class Adapt extends JavaPlugin {
 	public static Adapt plugin = null;
-	public String prefix = ChatColor.GRAY + "" + ChatColor.BOLD + "Adapt" + ChatColor.RESET + ChatColor.DARK_GRAY + " | ";
+	public String prefix = ChatColor.GRAY + "" + ChatColor.BOLD + "Adapt" + ChatColor.RESET + ChatColor.DARK_GRAY + " | " + ChatColor.RESET;
 	
 	public World world;
 	
