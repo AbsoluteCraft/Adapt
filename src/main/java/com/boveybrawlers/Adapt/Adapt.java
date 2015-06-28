@@ -1,59 +1,76 @@
 package com.boveybrawlers.Adapt;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
+
+import com.boveybrawlers.Adapt.commands.AdaptCommand;
+import com.boveybrawlers.Adapt.listeners.ClickChest;
+import com.boveybrawlers.Adapt.listeners.PlayerChat;
+import com.boveybrawlers.Adapt.listeners.PlayerDamage;
+import com.boveybrawlers.Adapt.listeners.PlayerDamageByPlayer;
+import com.boveybrawlers.Adapt.listeners.PlayerQuit;
+import com.boveybrawlers.Adapt.listeners.SpectatorLeave;
 
 public class Adapt extends JavaPlugin {
-	public static Adapt plugin = null;
+	
+	public Adapt plugin;
+	
+	public ArenaManager arenaManager;
+
 	public String prefix = ChatColor.GRAY + "" + ChatColor.BOLD + "Adapt" + ChatColor.RESET + ChatColor.DARK_GRAY + " | " + ChatColor.RESET;
 	
-	public World world;
-	
-	public Location spawnControl = null;
-	public Location lobby = null;
-	
-	public Location cyan = null;
-	public Location yellow = null;
-	public Location purple = null;
-	public Location lightgreen = null;
-	public Location pink = null;
-	public Location red = null;
-	public Location orange = null;
-	public Location blue = null;
-	
-	public ScoreboardManager manager = null;
-	public Scoreboard board = null;
-	public Objective objective = null;
-	
-	public Team cyanTeam = null;
-	public Team yellowTeam = null;
-	public Team purpleTeam = null;
-	public Team lightgreenTeam = null;
-	public Team pinkTeam = null;
-	public Team redTeam = null;
-	public Team orangeTeam = null;
-	public Team blueTeam = null;
-	
-	@Override
 	public void onEnable() {
 		plugin = this;
 		
-		manager = Bukkit.getScoreboardManager();
-		board = manager.getNewScoreboard();
+		arenaManager = new ArenaManager(this);
 		
-		this.getCommand("adapt").setExecutor(new Commands());
-		getServer().getPluginManager().registerEvents(new Game(), this);
+		this.getCommand("adapt").setExecutor(new AdaptCommand(this));
+		
+		this.getServer().getPluginManager().registerEvents(new ClickChest(this), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerChat(this), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerDamage(this), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerDamageByPlayer(this), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerQuit(this), this);
+		this.getServer().getPluginManager().registerEvents(new SpectatorLeave(this), this);
 	}
 	
-	@Override
 	public void onDisable() {
-		
+		for(Arena arena : arenaManager.getArenas()) {
+			if(arena.getSize() > 0) {
+				arena.reset();
+			}
+		}
 	}
+	
+	public int hasPlayer(Player player) {
+		int i = 0;
+		for(Arena arena : this.arenaManager.getArenas()) {
+			if(arena.hasPlayer(player)) {
+				return i;
+			}
+			
+			i++;
+		}
+		
+		return -1;
+	}
+	
+	public Adapter getAdapter(int arena, Player player) {
+		return this.arenaManager.getArenas().get(arena).getAdapter(player);
+	}
+	
+	public int hasSpectator(Player player) {
+		int i = 0;
+		for(Arena arena : this.arenaManager.getArenas()) {
+			if(arena.hasSpectator(player)) {
+				return i;
+			}
+			
+			i++;
+		}
+		
+		return -1;
+	}
+	
 }

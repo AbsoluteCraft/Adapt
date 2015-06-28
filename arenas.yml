@@ -1,0 +1,71 @@
+arenas:
+    0:
+        teams: 8
+        world: 'Games'
+        locations:
+            spawnControl:
+                x: -659
+                y: 34
+                z: -968
+            lobby:
+                x: -658.5
+                y: 69
+                z: -967.5
+                yaw: 90
+                pitch: 0
+            spectate:
+                x: -653
+                y: 56
+                z: -968
+                yaw: 90
+                pitch: 18
+
+            # Teams
+            cyan:
+                x: -659.5
+                y: 49.1
+                z: -1015.5
+                yaw: 0
+                pitch: 0
+            yellow:
+                x: -624.5
+                y: 49.1
+                z: -1001.5
+                yaw: 45
+                pitch: 0
+            purple:
+                x: -610.5
+                y: 49.1
+                z: -967.5
+                yaw: 90
+                pitch: 0
+            lightgreen:
+                x: -624.5
+                y: 49.1
+                z: -933.5
+                yaw: 135
+                pitch: 0
+            pink:
+                x: -658.5
+                y: 49.1
+                z: -919.5
+                yaw: 180
+                pitch: 0
+            red:
+                x: -692.5
+                y: 49.1
+                z: -933.5
+                yaw: -133
+                pitch: 0
+            orange:
+                x: -706.5
+                y: 49.1
+                z: -967.5
+                yaw: -90
+                pitch: 0
+            blue:
+                x: -692.5
+                y: 49.1
+                z: -1001.5
+                yaw: -45
+                pitch: 0

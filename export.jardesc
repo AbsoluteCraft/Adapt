@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/Users/danbovey/Documents/Server/plugins/Adapt.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Adapt/export.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=Adapt/src\/main\/resources"/>
+        <folder path="/Adapt/target"/>
+        <javaElement handleIdentifier="=Adapt/src\/main\/java"/>
+        <folder path="/Adapt/src"/>
+        <javaElement handleIdentifier="=Adapt/src\/test\/java"/>
+        <javaElement handleIdentifier="=Adapt/src\/test\/resources"/>
+        <file path="/Adapt/plugin.yml"/>
+        <file path="/Adapt/export.jardesc"/>
+        <file path="/Adapt/arenas.yml"/>
+    </selectedElements>
+</jardesc>
