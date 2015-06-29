@@ -35,76 +35,81 @@ public class AdaptCommand implements CommandExecutor {
 				Player player = (Player) sender;
 				
 				if(args[0].equalsIgnoreCase("join")) {
-					if(args.length == 1) {
-						// Find the most populated arena, that isn't playing, else join first empty arena
-						Arena arena = null;
-						for(Arena a : plugin.arenaManager.getArenas()) {
-							if(arena == null) {
-								// If arena is not playing and there is space
-								if(!a.isPlaying() && a.getSize() < a.getMaxSize()) {
-									arena = a;
-								}
-							} else {
-								// If arena is not playing, there is space and it is more populated than current chosen arena
-								if(!a.isPlaying() && a.getSize() < a.getMaxSize() && a.getSize() > arena.getSize()) {
-									arena = a;
-								}
-							}
-						}
-						
-						if(arena != null) {
-							Adapter adapter = new Adapter(player);
-							arena.addAdapter(adapter);
-						} else {
-							player.sendMessage(plugin.prefix + ChatColor.RED + "Sorry, there aren't any available arenas right now. Try again in a minute.");
-						}
-					} else {
-						// Try to join a specific arena ID
-						Integer id = null;
-						try {
-							id = Integer.parseInt(args[1]);
-						} catch(NumberFormatException e) {
-							player.sendMessage(plugin.prefix + ChatColor.RED + "Could not find that arena");
-						}
-						
-						if(id != null) {
-							if(plugin.arenaManager.hasArena(id)) {
-								Arena arena = plugin.arenaManager.getArenas().get(id);
-								
-								if(!arena.isPlaying()) {
-									if(arena.getSize() < arena.getMaxSize()) {
-										Adapter adapter = new Adapter(player);
-										arena.addAdapter(adapter);
-									} else {
-										player.sendMessage(plugin.prefix + ChatColor.RED + "That arena is currently full. Try again in a minute.");
+					int arena_id = plugin.hasPlayer(player);
+					if(arena_id == -1) {
+						if(args.length == 1) {
+							// Find the most populated arena, that isn't playing, else join first empty arena
+							Arena arena = null;
+							for(Arena a : plugin.arenaManager.getArenas()) {
+								if(arena == null) {
+									// If arena is not playing and there is space
+									if(!a.isPlaying() && a.getSize() < a.getMaxSize()) {
+										arena = a;
 									}
 								} else {
-									TextComponent message = new TextComponent(plugin.prefix + ChatColor.RED + "That arena is currently playing. Click here to ");
+									// If arena is not playing, there is space and it is more populated than current chosen arena
+									if(!a.isPlaying() && a.getSize() < a.getMaxSize() && a.getSize() > arena.getSize()) {
+										arena = a;
+									}
+								}
+							}
+							
+							if(arena != null) {
+								Adapter adapter = new Adapter(player);
+								arena.addAdapter(adapter);
+							} else {
+								player.sendMessage(plugin.prefix + ChatColor.RED + "Sorry, there aren't any available arenas right now. Try again in a minute.");
+							}
+						} else {
+							// Try to join a specific arena ID
+							Integer id = null;
+							try {
+								id = Integer.parseInt(args[1]);
+							} catch(NumberFormatException e) {
+								player.sendMessage(plugin.prefix + ChatColor.RED + "Could not find that arena");
+							}
+							
+							if(id != null) {
+								if(plugin.arenaManager.hasArena(id)) {
+									Arena arena = plugin.arenaManager.getArenas().get(id);
 									
-									TextComponent spectate = new TextComponent("[Spectate]");
-									spectate.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
-									spectate.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/adapt spectate " + id));
-									message.addExtra(spectate);
-									
-									player.spigot().sendMessage(message);
+									if(!arena.isPlaying()) {
+										if(arena.getSize() < arena.getMaxSize()) {
+											Adapter adapter = new Adapter(player);
+											arena.addAdapter(adapter);
+										} else {
+											player.sendMessage(plugin.prefix + ChatColor.RED + "That arena is currently full. Try again in a minute.");
+										}
+									} else {
+										TextComponent message = new TextComponent(plugin.prefix + ChatColor.RED + "That arena is currently playing. Click here to ");
+										
+										TextComponent spectate = new TextComponent("[Spectate]");
+										spectate.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
+										spectate.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/adapt spectate " + id));
+										message.addExtra(spectate);
+										
+										player.spigot().sendMessage(message);
+									}
 								}
 							}
 						}
+					} else {
+						player.sendMessage(plugin.prefix + ChatColor.RED + "You are already in arena " + arena_id);
 					}
 				} else if(args[0].equalsIgnoreCase("leave")) {
-					int id = plugin.hasPlayer(player);
-					if(id > -1) {
-						Arena arena = plugin.arenaManager.getArenas().get(id);
-						Adapter adapter = plugin.getAdapter(id, player);
+					int adapter_id = plugin.hasPlayer(player);
+					int spectator_id = plugin.hasSpectator(player);
+					if(adapter_id > -1) {
+						Arena arena = plugin.arenaManager.getArenas().get(adapter_id);
+						Adapter adapter = plugin.getAdapter(adapter_id, player);
 						
 						arena.removeAdapter(adapter, false);
-					} else {
-						id = plugin.hasSpectator(player);
-						if(id > -1) {
-							Arena arena = plugin.arenaManager.getArenas().get(id);
+					} else if(spectator_id > -1) {
+							Arena arena = plugin.arenaManager.getArenas().get(adapter_id);
 							
 							arena.removeSpectator(player);
-						}
+					} else {
+						player.sendMessage(plugin.prefix + ChatColor.RED + "You are not in a game");
 					}
 				} else if(args[0].equalsIgnoreCase("spectate")) {
 					if(args.length == 1) {

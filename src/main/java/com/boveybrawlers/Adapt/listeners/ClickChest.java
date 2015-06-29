@@ -65,7 +65,8 @@ public class ClickChest implements Listener {
 									meta = cookedFish.getItemMeta();
 									meta.setDisplayName(ChatColor.GOLD + "Super Fish");
 									List<String> lore = new ArrayList<String>();
-									lore.add("The fish is now lucky! Slap people with the fish for extra damage and humiliation.");
+									lore.add("The fish is now lucky!");
+									lore.add("Slap people with the fish for extra damage and humiliation.");
 									meta.setLore(lore);
 									cookedFish.setItemMeta(meta);
 									player.getInventory().addItem(cookedFish);

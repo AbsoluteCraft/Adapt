@@ -10,7 +10,6 @@ import com.boveybrawlers.Adapt.listeners.PlayerChat;
 import com.boveybrawlers.Adapt.listeners.PlayerDamage;
 import com.boveybrawlers.Adapt.listeners.PlayerDamageByPlayer;
 import com.boveybrawlers.Adapt.listeners.PlayerQuit;
-import com.boveybrawlers.Adapt.listeners.SpectatorLeave;
 
 public class Adapt extends JavaPlugin {
 	
@@ -32,7 +31,7 @@ public class Adapt extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerDamage(this), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerDamageByPlayer(this), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerQuit(this), this);
-		this.getServer().getPluginManager().registerEvents(new SpectatorLeave(this), this);
+//		this.getServer().getPluginManager().registerEvents(new SpectatorLeave(this), this);
 	}
 	
 	public void onDisable() {

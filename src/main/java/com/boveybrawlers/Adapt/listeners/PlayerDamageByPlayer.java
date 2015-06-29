@@ -45,29 +45,47 @@ public class PlayerDamageByPlayer implements Listener {
 				
 				if(killer != null) {
 					if(killer.getItemInHand().getType() == Material.COOKED_FISH) {
-						if(player.getHealth() <= 4) {
+						if(player.getHealth() <= 8) {
+							event.setDamage(0);
 							
+							arena.getLocation("lobby").getWorld().strikeLightning(player.getLocation());
+							
+							Adapter adaptKiller = plugin.getAdapter(id, killer);
+							adaptKiller.addKill();
+							
+							arena.getPlayerObjective(killer).setScore(adaptKiller.getKills());
+							
+							arena.getPlayerObjective(player).getScoreboard().getPlayerTeam(player).setPrefix(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH);
+							
+							PlayerKillEvent e = new PlayerKillEvent(player, killer, adaptKiller.getKills());
+							Bukkit.getServer().getPluginManager().callEvent(e);
+							
+							arena.sendMessage(ChatColor.DARK_AQUA + killer.getDisplayName() + " slapped " + player.getDisplayName() + " with the " + ChatColor.GOLD + "Super Fish" + ChatColor.DARK_AQUA + "!" + ChatColor.GREEN + " [+1]");
+							
+							arena.removeAdapter(adapter, true);
 						} else {
-							player.damage(4);
+							event.setDamage(8);
 						}
-					}
-					
-					if(event.getDamage() >= player.getHealth()) {
-						arena.getLocation("lobby").getWorld().strikeLightning(player.getLocation());
-						
-						event.setDamage(0);
-						
-						Adapter adaptKiller = plugin.getAdapter(id, killer);
-						adaptKiller.addKill();
-						
-						arena.getPlayerObjective(player).setScore(adapter.getKills());
-						
-						PlayerKillEvent e = new PlayerKillEvent(player, killer, adaptKiller.getKills());
-						Bukkit.getServer().getPluginManager().callEvent(e);
-						
-						arena.sendMessage(ChatColor.DARK_AQUA + killer.getDisplayName() + " killed " + player.getDisplayName() + ChatColor.GREEN + " [+1]");
-						
-						arena.removeAdapter(adapter, true);
+					} else {
+						if(event.getDamage() >= player.getHealth()) {
+							arena.getLocation("lobby").getWorld().strikeLightning(player.getLocation());
+							
+							event.setDamage(0);
+							
+							Adapter adaptKiller = plugin.getAdapter(id, killer);
+							adaptKiller.addKill();
+							
+							arena.getPlayerObjective(killer).setScore(adaptKiller.getKills());
+							
+							arena.getPlayerObjective(player).getScoreboard().getPlayerTeam(player).setPrefix(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH);
+							
+							PlayerKillEvent e = new PlayerKillEvent(player, killer, adaptKiller.getKills());
+							Bukkit.getServer().getPluginManager().callEvent(e);
+							
+							arena.sendMessage(ChatColor.DARK_AQUA + killer.getDisplayName() + " killed " + player.getDisplayName() + ChatColor.GREEN + " [+1]");
+							
+							arena.removeAdapter(adapter, true);
+						}
 					}
 				}
 			}

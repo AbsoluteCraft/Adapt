@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -62,13 +63,6 @@ public class Arena {
 		
 		this.manager = Bukkit.getScoreboardManager();
 		this.board = manager.getNewScoreboard();
-		
-		for(int i = 0; i < this.maxSize; i++) {
-			String name = TeamInfo.getNameFromInt(i);
-			this.teams.put(name, board.registerNewTeam(name));
-			
-			this.teams.get(name).setPrefix(TeamInfo.getColorFromInt(i));
-		}
 	}
 
 	public Location getLocation(String name) {
@@ -118,6 +112,8 @@ public class Arena {
 		adapter.getPlayer().setGameMode(GameMode.SURVIVAL);
 		adapter.heal();
 		
+		adapter.getPlayer().setMetadata("adapt_last_arena_id", new FixedMetadataValue(plugin, this.id));
+		
 		this.sendMessage(ChatColor.GREEN + adapter.getPlayer().getDisplayName() + " has joined");
 		
 		if(this.getSize() == this.getMaxSize()) {
@@ -127,10 +123,10 @@ public class Arena {
 		}
 	}
 	
-	public void removeAdapter(Adapter adapter, boolean killed) {
+	public void removeAdapter(Adapter adapter, boolean died) {
 		Player player = adapter.getPlayer();
 		
-		if(killed == false) {
+		if(died == false) {
 			this.sendMessage(ChatColor.RED + player.getDisplayName() + " has left");
 		}
 		
@@ -144,6 +140,8 @@ public class Arena {
 		player.teleport(this.getLocation("lobby"));
 		
 		adapters.remove(adapter);
+		
+		player.getScoreboard().getPlayerTeam(player).setPrefix(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH);
 		
 		player.setScoreboard(this.manager.getNewScoreboard());
 		
@@ -179,7 +177,7 @@ public class Arena {
 			}
 			
 			this.reset();
-		} else {
+		} else if(died == true) {
 			this.addSpectator(player);
 		}
 	}
@@ -218,9 +216,17 @@ public class Arena {
 			this.setQueueTime(0);
 		}
 		
+		this.board = manager.getNewScoreboard();
 		this.objective = board.registerNewObjective("adapt" + this.id, "dummy");
 		this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		this.objective.setDisplayName(ChatColor.BOLD + "" + ChatColor.GRAY + "Adapt");
+		
+		for(int i = 0; i < this.maxSize; i++) {
+			String name = TeamInfo.getNameFromInt(i);
+			this.teams.put(name, board.registerNewTeam(name));
+			
+			this.teams.get(name).setPrefix(TeamInfo.getColorFromInt(i));
+		}
 		
 		// Again, just in case of /adapt start
 		this.locations.get("spawnControl").getBlock().setType(Material.AIR);
@@ -247,7 +253,6 @@ public class Arena {
 			
 			player.setGameMode(GameMode.SURVIVAL);
 			player.teleport(this.locations.get(team));
-			player.getInventory().setHelmet(new ItemStack(Material.WOOL, 1, TeamInfo.getWoolDurability(randomNum)));
 			
 			player.getInventory().clear();
 			player.getInventory().setHelmet(new ItemStack(Material.AIR));
@@ -256,6 +261,8 @@ public class Arena {
 			player.getInventory().setBoots(new ItemStack(Material.AIR));
 			
 			adapter.setInventory("start");
+			
+			player.getInventory().setHelmet(new ItemStack(Material.WOOL, 1, TeamInfo.getWoolDurability(randomNum)));
 		}
 		
 		this.countdownTask = new CountdownHandler(plugin, this, 10);
@@ -266,6 +273,10 @@ public class Arena {
 	public void sendMessage(String message) {
 		for(Adapter adapter : this.adapters) {
 			adapter.getPlayer().sendMessage(plugin.prefix + message);
+		}
+		
+		for(Player spectator : this.spectators) {
+			spectator.sendMessage(plugin.prefix + message);
 		}
 	}
 	
@@ -314,8 +325,10 @@ public class Arena {
 	}
 
 	public void start() {
-		this.countdown = false;
-		this.countdownTask.cancel();
+		if(this.isCountingDown()) {
+			this.countdown = false;
+			this.countdownTask.cancel();
+		}
 		
 		for(Adapter adapter : this.adapters) {
 			adapter.heal();
