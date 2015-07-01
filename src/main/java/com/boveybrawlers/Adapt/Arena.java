@@ -141,7 +141,9 @@ public class Arena {
 		
 		adapters.remove(adapter);
 		
-		player.getScoreboard().getPlayerTeam(player).setPrefix(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH);
+		if(player.getScoreboard() != null && player.getScoreboard().getPlayerTeam(player) != null) {
+			player.getScoreboard().getPlayerTeam(player).setPrefix(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH);
+		}
 		
 		player.setScoreboard(this.manager.getNewScoreboard());
 		
